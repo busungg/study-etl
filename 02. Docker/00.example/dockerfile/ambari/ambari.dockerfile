@@ -3,10 +3,10 @@ LABEL maintainer="busungg" desc="open ssh image"
 ARG passwd=root
 RUN yum update -y
 RUN yum install -y epel-release
-RUN yum install - y openssh-server
-RUN yum install - y nano
-RUN yum install -y java-1.8.0-openjdk \
-    maven \
+RUN yum install -y openssh-server
+RUN yum install -y nano
+RUN yum install -y java-1.8.0-openjdk-devel.x86_64 \
+    #maven \
     bzip2 \
     wget \
     git \
@@ -23,20 +23,21 @@ RUN mkdir /var/run/sshd
 RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
     sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
 
-# config env
-ENV MAVEN_HOME=/usr/share/maven \
-    JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk \
-    _JAVA_OPTIONS="-Xmx2048m -XX:MaxPermSize=512m -Djava.awt.headless=true" \
-    PATH=$PATH:$JAVA_HOME:$MAVEN_HOME/bin
-
 #maven
-#WORKDIR /opt
-#RUN wget https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.3.9/apache-maven-3.3.9-bin.tar.gz
-#RUN tar xzf apache-maven-3.3.9-bin.tar.gz && \
-#    rm -f apache-maven-3.3.9-bin.tar.gz
-#RUN mv apache-maven-3.3.9 maven
-#RUN alternatives --install /usr/bin/mvn mvn /opt/maven/bin/mvn 1
-#RUN update-alternatives --set mvn /opt/maven/bin/mvn
+WORKDIR /opt
+RUN wget https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.3.9/apache-maven-3.3.9-bin.tar.gz
+RUN tar xzf apache-maven-3.3.9-bin.tar.gz && \
+    rm -f apache-maven-3.3.9-bin.tar.gz
+RUN mv apache-maven-3.3.9 maven
+RUN alternatives --install /usr/bin/mvn mvn /opt/maven/bin/mvn 1
+RUN update-alternatives --set mvn /opt/maven/bin/mvn
+
+# config env
+ENV JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk \
+    _JAVA_OPTIONS="-Xmx2048m -XX:MaxPermSize=512m -Djava.awt.headless=true" \
+    #MAVEN_HOME=/usr/share/maven \
+    MAVEN_HOME=/opt/maven \
+    PATH=$PATH:$JAVA_HOME:$MAVEN_HOME/bin
 
 # install ambari
 WORKDIR /opt
